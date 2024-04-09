@@ -2,7 +2,7 @@ use grid::Grid;
 use itertools::Itertools;
 use petgraph::algo::min_spanning_tree;
 use petgraph::data::FromElements;
-use petgraph::graph::{Graph, NodeIndex};
+use petgraph::graph::Graph;
 use petgraph::visit::{Dfs, Walker};
 use petgraph::Undirected;
 
@@ -15,12 +15,10 @@ type ImageGraph = Graph<ImageColor, u32, Undirected>;
 
 pub fn arrange_images(graph: &ImageGraph) -> OptionalGrid<&Image> {
     // Build out the graph from the node with the most neighbors
-    let mut most_popular = NodeIndex::new(0);
-    for i in graph.node_indices() {
-        if graph.neighbors(i).count() > graph.neighbors(most_popular).count() {
-            most_popular = i;
-        }
-    }
+    let most_popular = graph
+        .node_indices()
+        .max_by_key(|i| graph.neighbors(*i).count())
+        .unwrap();
     let mut build_order = Dfs::new(&graph, most_popular)
         .iter(&graph)
         .map(|i| &graph[i].image);
