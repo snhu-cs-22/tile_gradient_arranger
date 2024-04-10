@@ -33,7 +33,7 @@ pub fn arrange_images(graph: &ImageGraph) -> OptionalGrid<&Image> {
 
 pub fn build_graph(image_colors: Vec<ImageColor>) -> ImageGraph {
     // Add nodes
-    let mut graph = ImageGraph::new_undirected();
+    let mut graph = ImageGraph::with_capacity(image_colors.len(), image_colors.len().pow(2));
     let mut nodes = Vec::with_capacity(image_colors.len());
     for image_color in image_colors {
         let node = graph.add_node(image_color);
