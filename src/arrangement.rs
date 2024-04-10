@@ -6,12 +6,12 @@ use petgraph::graph::Graph;
 use petgraph::visit::{Dfs, Walker};
 use petgraph::Undirected;
 
-use super::colors::{color_similarity, ColorSimilarityMethod, Image, ImageColor};
+use super::colors::{color_similarity, Image, ImageColor};
 
 /// NOTE: Grid is assumed to be in row-major order
 pub type OptionalGrid<T> = Grid<Option<T>>;
 
-type ImageGraph = Graph<ImageColor, u32, Undirected>;
+type ImageGraph = Graph<ImageColor, f32, Undirected>;
 
 pub fn arrange_images(graph: &ImageGraph) -> OptionalGrid<&Image> {
     // Build out the graph from the node with the most neighbors
@@ -46,15 +46,7 @@ pub fn build_graph(image_colors: Vec<ImageColor>) -> ImageGraph {
         for pair in node_pairs {
             let a = *pair[0];
             let b = *pair[1];
-            graph.add_edge(
-                a,
-                b,
-                color_similarity(
-                    graph[a].color,
-                    graph[b].color,
-                    ColorSimilarityMethod::DotProduct,
-                ),
-            );
+            graph.add_edge(a, b, color_similarity(graph[a].color, graph[b].color));
         }
     }
 
