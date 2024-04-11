@@ -1,12 +1,13 @@
-use std::env::args;
+use clap::Parser;
 
 use tile_gradient_arranger::arrangement::{arrange_images, build_graph};
+use tile_gradient_arranger::cli::Cli;
 use tile_gradient_arranger::image::{read_images, write_image};
 
 fn main() {
-    let image_paths = args().skip(1);
-    let image_colors = read_images(image_paths);
+    let args = Cli::parse();
+    let image_colors = read_images(args.input, args.k_means);
     let graph = build_graph(image_colors);
     let grid = arrange_images(&graph);
-    write_image(&grid, "./image.png");
+    write_image(&grid, &args.output);
 }

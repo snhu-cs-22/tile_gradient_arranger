@@ -10,16 +10,11 @@ pub struct ImageColor {
     pub color: Color,
 }
 
-pub enum PrimaryColorMethod {
-    Average,
-    Kmeans(u32),
-}
-
-pub fn get_primary_color(image: Image, method: PrimaryColorMethod) -> ImageColor {
-    use PrimaryColorMethod as M;
-    match method {
-        M::Average => average_color(image),
-        M::Kmeans(clusters) => todo!(),
+pub fn get_primary_color(image: Image, k_means: u32) -> ImageColor {
+    if k_means < 2 {
+        average_color(image)
+    } else {
+        todo!()
     }
 }
 

@@ -5,25 +5,26 @@ use image::io::Reader as ImageReader;
 use image::{GenericImageView, ImageBuffer, Rgba};
 
 use super::arrangement::OptionalGrid;
-use super::colors::{get_primary_color, Image, ImageColor, PrimaryColorMethod};
+use super::colors::{get_primary_color, Image, ImageColor};
 
 // TODO: resize based on first image or user preference
 const IMAGE_WIDTH: u32 = 100;
 const IMAGE_HEIGHT: u32 = 100;
 
-pub fn read_images<T>(paths: T) -> Vec<ImageColor>
+pub fn read_images<T>(paths: T, k_means: u32) -> Vec<ImageColor>
 where
-    T: Iterator,
-    <T as Iterator>::Item: AsRef<Path>,
+    T: IntoIterator,
+    <T as IntoIterator>::Item: AsRef<Path>,
 {
     paths
+        .into_iter()
         .map(|path| ImageReader::open(path).unwrap().decode().unwrap())
         .map(|image| resize(&image, IMAGE_WIDTH, IMAGE_HEIGHT, FilterType::Nearest).into())
-        .map(|image| get_primary_color(image, PrimaryColorMethod::Average))
+        .map(|image| get_primary_color(image, k_means))
         .collect()
 }
 
-pub fn write_image(grid: &OptionalGrid<&Image>, path: &str) {
+pub fn write_image<T: AsRef<Path>>(grid: &OptionalGrid<&Image>, path: T) {
     let grid_width = <usize as TryInto<u32>>::try_into(grid.cols()).unwrap();
     let grid_height = <usize as TryInto<u32>>::try_into(grid.rows()).unwrap();
     let mut image = ImageBuffer::new(grid_width * IMAGE_WIDTH, grid_height * IMAGE_HEIGHT);
