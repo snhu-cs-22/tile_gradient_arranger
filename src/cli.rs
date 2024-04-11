@@ -17,4 +17,12 @@ pub struct Cli {
     #[arg(short, long, default_value_t = 3)]
     #[arg(alias = "kmeans")]
     pub k_means: u32,
+
+    /// Width to scale each input image to in pixels.
+    #[arg(long, default_value_t = 100)]
+    pub tile_width: u32,
+
+    /// Height to scale each input image to in pixels.
+    #[arg(long, default_value_t = 100)]
+    pub tile_height: u32,
 }
