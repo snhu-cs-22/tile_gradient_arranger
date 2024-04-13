@@ -7,7 +7,7 @@ use tile_gradient_arranger::image::{read_images, write_image};
 fn main() {
     let args = Cli::parse();
     let image_colors = read_images(
-        args.input,
+        &args.input,
         args.k_means,
         (args.tile_width, args.tile_height),
     );

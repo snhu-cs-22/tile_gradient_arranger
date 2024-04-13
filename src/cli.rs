@@ -5,9 +5,9 @@ use clap::Parser;
 #[derive(Parser, Debug)]
 #[command(version, about)]
 pub struct Cli {
-    /// Paths of the image files to use.
-    #[arg()]
-    pub input: Vec<PathBuf>,
+    /// Path to the directory of input image files.
+    #[arg(short, long)]
+    pub input: PathBuf,
 
     /// Path of the output image file.
     #[arg(short, long, default_value_os_t = PathBuf::from("./mosaic.png"))]
