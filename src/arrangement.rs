@@ -13,7 +13,7 @@ pub type OptionalGrid<T> = Grid<Option<T>>;
 
 type ImageGraph = Graph<ImageColor, f32, Undirected>;
 
-pub fn arrange_images(graph: &ImageGraph) -> OptionalGrid<&Image> {
+pub fn arrange_images(graph: &ImageGraph, image_count: usize) -> OptionalGrid<&Image> {
     // Build out the graph from the node with the most neighbors
     let most_popular = graph
         .node_indices()
@@ -24,9 +24,10 @@ pub fn arrange_images(graph: &ImageGraph) -> OptionalGrid<&Image> {
         .map(|i| &graph[i].image);
 
     // TODO: Arrange the images on the image grid
-    let mut grid = Grid::init(1, 1, build_order.next());
-    for image in build_order {
-        grid.push_col(vec![Some(image)]);
+    let square_size = (image_count as f32).sqrt().ceil() as usize;
+    let mut grid = Grid::init(square_size, square_size, None);
+    for cell in grid.iter_mut() {
+        *cell = build_order.next();
     }
     grid
 }

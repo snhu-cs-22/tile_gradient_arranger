@@ -11,7 +11,8 @@ fn main() {
         args.k_means,
         (args.tile_width, args.tile_height),
     );
+    let image_count = image_colors.len();
     let graph = build_graph(image_colors);
-    let grid = arrange_images(&graph);
+    let grid = arrange_images(&graph, image_count);
     write_image(&grid, &args.output, (args.tile_width, args.tile_height));
 }
