@@ -2,16 +2,15 @@ use grid::Grid;
 use itertools::Itertools;
 use petgraph::algo::min_spanning_tree;
 use petgraph::data::FromElements;
-use petgraph::graph::Graph;
+use petgraph::graph::UnGraph;
 use petgraph::visit::{Dfs, Walker};
-use petgraph::Undirected;
 
 use super::colors::{color_similarity, Image, ImageColor};
 
 /// NOTE: Grid is assumed to be in row-major order
 pub type OptionalGrid<T> = Grid<Option<T>>;
 
-type ImageGraph = Graph<ImageColor, f32, Undirected>;
+type ImageGraph = UnGraph<ImageColor, f32>;
 
 pub fn arrange_images(graph: &ImageGraph, image_count: usize) -> OptionalGrid<&Image> {
     // Build out the graph from the node with the most neighbors
