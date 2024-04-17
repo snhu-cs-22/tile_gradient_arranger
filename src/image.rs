@@ -11,11 +11,18 @@ use super::colors::{get_primary_color, Image, ImageColor};
 pub fn read_images(dir: &Path, k_means: u32, tile_size: (u32, u32)) -> Vec<ImageColor> {
     read_dir(dir)
         .expect("Path must be directory")
-        .filter_map(|x| x.ok())
-        .map(|x| x.path())
-        .filter(|x| x.is_file())
-        .filter_map(|path| ImageReader::open(path).ok())
-        .filter_map(|image| image.decode().ok())
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file())
+        .filter_map(|path| {
+            let path_str = &path.display();
+            ImageReader::open(&path)
+                .inspect_err(|e| eprintln!("\"{path_str}\": {e}"))
+                .ok()?
+                .decode()
+                .inspect_err(|e| eprintln!("\"{path_str}\": {e}"))
+                .ok()
+        })
         .map(|image| resize(&image, tile_size.0, tile_size.1, FilterType::Nearest).into())
         .map(|image| get_primary_color(image, k_means))
         .collect()
