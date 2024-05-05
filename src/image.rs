@@ -24,7 +24,11 @@ pub fn read_images(dir: &Path, k_means: u32, tile_size: (u32, u32)) -> Vec<Image
                 .ok()
         })
         .map(|image| resize(&image, tile_size.0, tile_size.1, FilterType::Nearest).into())
-        .map(|image| get_primary_color(image, k_means))
+        .enumerate()
+        .map(|(i, image)| {
+            eprintln!("Getting primary color of image #{i}");
+            get_primary_color(image, k_means)
+        })
         .collect()
 }
 
