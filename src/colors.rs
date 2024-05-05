@@ -10,12 +10,13 @@ pub struct ImageColor {
     pub color: Color,
 }
 
-pub fn get_primary_color(image: Image, k_means: u32) -> ImageColor {
-    if k_means < 2 {
-        average_color(image)
-    } else {
-        todo!()
-    }
+pub fn get_primary_color(image: Image, k: u32) -> ImageColor {
+    let pixels = image
+        .pixels()
+        .map(|(_, _, p)| p.to_rgb())
+        .map(|p| Color::from_rgb(&p.0));
+    let color = k_means(pixels, k);
+    ImageColor { image, color }
 }
 
 pub fn color_similarity(lab_0: Color, lab_1: Color) -> f32 {
@@ -85,23 +86,81 @@ pub fn color_similarity(lab_0: Color, lab_1: Color) -> f32 {
         .sqrt()
 }
 
-fn average_color(image: Image) -> ImageColor {
-    let dimensions = image.dimensions();
-    let total_pixels = dimensions.0 as u64 * dimensions.1 as u64;
-    let sum = image
-        .pixels()
-        .map(|(_, _, p)| Color::from_rgb(&p.to_rgb().0))
-        .fold([0f32; 3], |mut acc, e| {
-            acc[0] += e.l;
-            acc[1] += e.a;
-            acc[2] += e.b;
-            acc
-        });
-    let color = Color {
-        l: sum[0] / total_pixels as f32,
-        a: sum[1] / total_pixels as f32,
-        b: sum[2] / total_pixels as f32,
-    };
+fn k_means<I>(colors: I, k: u32) -> Color
+where
+    I: Iterator<Item = Color> + Clone,
+{
+    if k < 2 {
+        return average_color(colors);
+    }
 
-    ImageColor { image, color }
+    // Build list of "random" centroids
+    let mut centroids_and_totals = colors
+        .clone()
+        // TODO: make this less stupid
+        .step_by(colors.clone().count() / k as usize)
+        .take(k as usize)
+        .map(|c| (c, 0))
+        .collect::<Vec<_>>();
+
+    // Iterate towards local maximum
+    for _ in 0..5 {
+        // Reset totals to zero
+        centroids_and_totals.iter_mut().for_each(|(_, t)| *t = 0);
+
+        // Assign closest centroid to each color
+        let closest_centroids = colors.clone().map(|color| {
+            (
+                color,
+                *centroids_and_totals
+                    .iter()
+                    .map(|(c, _)| c)
+                    .max_by(|&a, &b| {
+                        color_similarity(color, *a).total_cmp(&color_similarity(color, *b))
+                    })
+                    .unwrap(),
+            )
+        });
+
+        // Group colors by centroid
+        let mut groups = vec![Vec::new(); k as usize];
+        for (color, closest) in closest_centroids {
+            for ((centroid, _), group) in centroids_and_totals.iter().zip(groups.iter_mut()) {
+                if closest == *centroid {
+                    group.push(color);
+                }
+            }
+        }
+
+        // Reassign centroids to the average color in their group
+        for ((centroid, total), group) in centroids_and_totals.iter_mut().zip(groups.iter()) {
+            *total = group.len();
+            *centroid = average_color(group.iter().map(|c| *c));
+        }
+    }
+
+    centroids_and_totals
+        .iter()
+        .max_by_key(|(_, t)| t)
+        .unwrap()
+        .0
+}
+
+fn average_color<I>(colors: I) -> Color
+where
+    I: Iterator<Item = Color>,
+{
+    let (sum, count) = colors.fold(([0f32; 3], 0usize), |mut acc, e| {
+        acc.0[0] += e.l;
+        acc.0[1] += e.a;
+        acc.0[2] += e.b;
+        acc.1 += 1;
+        acc
+    });
+
+    Color {
+        l: sum[0] / count as f32,
+        a: sum[1] / count as f32,
+        b: sum[2] / count as f32,
+    }
 }
