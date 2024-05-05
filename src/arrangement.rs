@@ -32,22 +32,19 @@ pub fn arrange_images(graph: &ImageGraph, image_count: usize) -> OptionalGrid<&I
 }
 
 pub fn build_graph(image_colors: Vec<ImageColor>) -> ImageGraph {
-    // Add nodes
     let mut graph = ImageGraph::with_capacity(image_colors.len(), image_colors.len().pow(2));
-    let mut nodes = Vec::with_capacity(image_colors.len());
+
+    // Add nodes
     for image_color in image_colors {
-        let node = graph.add_node(image_color);
-        nodes.push(node);
+        graph.add_node(image_color);
     }
 
     // Add edges
-    if nodes.len() > 1 {
-        let node_pairs = nodes.iter().permutations(2);
-        for pair in node_pairs {
-            let a = *pair[0];
-            let b = *pair[1];
-            graph.add_edge(a, b, color_similarity(graph[a].color, graph[b].color));
-        }
+    let node_pairs = graph.node_indices().permutations(2);
+    for pair in node_pairs {
+        let a = pair[0];
+        let b = pair[1];
+        graph.add_edge(a, b, color_similarity(graph[a].color, graph[b].color));
     }
 
     ImageGraph::from_elements(min_spanning_tree(&graph))
