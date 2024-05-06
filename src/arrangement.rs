@@ -3,7 +3,7 @@ use itertools::Itertools;
 use petgraph::algo::min_spanning_tree;
 use petgraph::data::FromElements;
 use petgraph::graph::UnGraph;
-use petgraph::visit::{Dfs, Walker};
+use petgraph::visit::{Bfs, Walker};
 
 use super::colors::{color_similarity, Image, ImageColor};
 
@@ -18,7 +18,7 @@ pub fn arrange_images(graph: &ImageGraph, image_count: usize) -> OptionalGrid<&I
         .node_indices()
         .max_by_key(|i| graph.neighbors(*i).count())
         .unwrap();
-    let build_order = Dfs::new(&graph, most_popular)
+    let build_order = Bfs::new(&graph, most_popular)
         .iter(&graph)
         .map(|i| &graph[i].image);
 
