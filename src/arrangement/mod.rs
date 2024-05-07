@@ -28,7 +28,7 @@ pub fn arrange_images(
         .unwrap();
     let build_order = Bfs::new(&graph, most_popular)
         .iter(&graph)
-        .map(|i| &graph[i].image);
+        .map(|i| &graph[i]);
 
     // TODO: Arrange the images on the image grid
     let square_size = (image_count as f32).sqrt().ceil() as usize;

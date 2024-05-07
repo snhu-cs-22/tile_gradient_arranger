@@ -1,12 +1,12 @@
-use super::{Image, OptionalGrid};
+use super::{Image, ImageColor, OptionalGrid};
 
 pub fn arrange<'a>(
     grid: &mut OptionalGrid<&'a Image>,
-    build_order: impl Iterator<Item = &'a Image>,
+    build_order: impl Iterator<Item = &'a ImageColor>,
 ) {
     let coords = SpiralGridCoords::new((grid.cols() / 2, grid.rows() / 2));
-    for (coords, image) in coords.zip(build_order) {
-        grid[coords] = Some(image);
+    for (coords, image_color) in coords.zip(build_order) {
+        grid[coords] = Some(&image_color.image);
     }
 }
 
