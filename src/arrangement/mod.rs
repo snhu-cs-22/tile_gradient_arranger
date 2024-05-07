@@ -20,7 +20,7 @@ pub fn arrange_images(
     graph: &ImageGraph,
     image_count: usize,
     strategy: ArrangementStrategy,
-) -> OptionalGrid<&Image> {
+) -> OptionalGrid<&ImageColor> {
     // Build out the graph from the node with the most neighbors
     let most_popular = graph
         .node_indices()

@@ -6,7 +6,7 @@ use image::io::Reader as ImageReader;
 use image::{GenericImage, ImageBuffer};
 
 use super::arrangement::OptionalGrid;
-use super::colors::{get_primary_color, Image, ImageColor};
+use super::colors::{get_primary_color, ImageColor};
 
 pub fn read_images(dir: &Path, k_means: u32, tile_size: (u32, u32)) -> Vec<ImageColor> {
     read_dir(dir)
@@ -32,16 +32,16 @@ pub fn read_images(dir: &Path, k_means: u32, tile_size: (u32, u32)) -> Vec<Image
         .collect()
 }
 
-pub fn write_image<T: AsRef<Path>>(grid: &OptionalGrid<&Image>, path: T, tile_size: (u32, u32)) {
+pub fn write_image<T: AsRef<Path>>(grid: &OptionalGrid<&ImageColor>, path: T, tile_size: (u32, u32)) {
     let grid_width = <usize as TryInto<u32>>::try_into(grid.cols()).unwrap();
     let grid_height = <usize as TryInto<u32>>::try_into(grid.rows()).unwrap();
     let mut output = ImageBuffer::new(grid_width * tile_size.0, grid_height * tile_size.1);
 
     for ((y, x), tile) in grid.indexed_iter() {
-        if let Some(image) = tile {
+        if let Some(image_color) = tile {
             output
                 .copy_from(
-                    *image,
+                    &image_color.image,
                     <usize as TryInto<u32>>::try_into(x).unwrap() * tile_size.0,
                     <usize as TryInto<u32>>::try_into(y).unwrap() * tile_size.1,
                 )
