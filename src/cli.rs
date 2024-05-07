@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -28,4 +28,16 @@ pub struct Cli {
     #[arg(long, default_value_t = 100)]
     #[arg(value_parser = clap::value_parser!(u32).range(1..))]
     pub tile_height: u32,
+
+    /// Strategy for arranging images.
+    #[arg(long, value_enum, default_value_t = ArrangementStrategy::Raster)]
+    #[arg(alias = "strategy")]
+    #[arg(alias = "strat")]
+    pub arrangement_strategy: ArrangementStrategy,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum ArrangementStrategy {
+    Raster,
+    Spiral,
 }

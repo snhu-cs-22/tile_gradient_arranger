@@ -16,7 +16,7 @@ fn main() {
     eprintln!("Building graph...");
     let graph = build_graph(image_colors);
     eprintln!("Arranging images...");
-    let grid = arrange_images(&graph, image_count);
+    let grid = arrange_images(&graph, image_count, args.arrangement_strategy);
     eprintln!("Writing image...");
     write_image(&grid, &args.output, (args.tile_width, args.tile_height));
 }
