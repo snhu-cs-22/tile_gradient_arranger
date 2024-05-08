@@ -34,11 +34,15 @@ impl SpiralGridCoords {
             current_side_length: 0,
         }
     }
+}
 
-    fn get_next(&mut self) -> (usize, usize) {
+impl Iterator for SpiralGridCoords {
+    type Item = (usize, usize);
+
+    fn next(&mut self) -> Option<Self::Item> {
         if self.current_side_length == 0 {
             self.current_side_length += 1;
-            return self.current_coords;
+            return Some(self.current_coords);
         }
 
         self.current_coords = match self.current_direction {
@@ -64,14 +68,6 @@ impl SpiralGridCoords {
             };
         }
 
-        self.current_coords
-    }
-}
-
-impl Iterator for SpiralGridCoords {
-    type Item = (usize, usize);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(self.get_next())
+        Some(self.current_coords)
     }
 }
