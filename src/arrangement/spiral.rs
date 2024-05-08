@@ -17,12 +17,53 @@ struct SpiralGridCoords {
     current_side_length: usize,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 enum Direction {
     Down,
     Right,
     Up,
     Left,
+}
+
+impl Direction {
+    #[inline]
+    pub fn is_horizontal(&self) -> bool {
+        *self == Direction::Left || *self == Direction::Right
+    }
+
+    #[inline]
+    pub fn is_vertical(&self) -> bool {
+        !self.is_horizontal()
+    }
+
+    #[inline]
+    pub fn clockwise(&self) -> Self {
+        match self {
+            Self::Down => Self::Left,
+            Self::Left => Self::Up,
+            Self::Up => Self::Right,
+            Self::Right => Self::Down,
+        }
+    }
+
+    #[inline]
+    pub fn counter_clockwise(&self) -> Self {
+        match self {
+            Self::Down => Self::Right,
+            Self::Right => Self::Up,
+            Self::Up => Self::Left,
+            Self::Left => Self::Down,
+        }
+    }
+}
+
+fn ahead(index: (usize, usize), direction: Direction) -> (usize, usize) {
+    match direction {
+        Direction::Down => (index.0, index.1 + 1),
+        Direction::Right => (index.0 + 1, index.1),
+        Direction::Up => (index.0, index.1 - 1),
+        Direction::Left => (index.0 - 1, index.1),
+    }
 }
 
 impl SpiralGridCoords {
@@ -45,27 +86,14 @@ impl Iterator for SpiralGridCoords {
             return Some(self.current_coords);
         }
 
-        self.current_coords = match self.current_direction {
-            Direction::Down => (self.current_coords.0, self.current_coords.1 + 1),
-            Direction::Right => (self.current_coords.0 + 1, self.current_coords.1),
-            Direction::Up => (self.current_coords.0, self.current_coords.1 - 1),
-            Direction::Left => (self.current_coords.0 - 1, self.current_coords.1),
-        };
-
+        self.current_coords = ahead(self.current_coords, self.current_direction);
         self.until_side_length += 1;
         if self.until_side_length == self.current_side_length {
             self.until_side_length = 0;
-            if self.current_direction == Direction::Left
-                || self.current_direction == Direction::Right
-            {
+            if self.current_direction.is_horizontal() {
                 self.current_side_length += 1;
             }
-            self.current_direction = match self.current_direction {
-                Direction::Down => Direction::Right,
-                Direction::Right => Direction::Up,
-                Direction::Up => Direction::Left,
-                Direction::Left => Direction::Down,
-            };
+            self.current_direction = self.current_direction.counter_clockwise();
         }
 
         Some(self.current_coords)
