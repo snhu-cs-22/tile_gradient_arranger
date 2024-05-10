@@ -30,7 +30,7 @@ pub struct Cli {
     pub tile_height: u32,
 
     /// Strategy for arranging images.
-    #[arg(long, value_enum, default_value_t = ArrangementStrategy::Raster)]
+    #[arg(long, value_enum, default_value_t = ArrangementStrategy::Amalgamate)]
     #[arg(alias = "strategy")]
     #[arg(alias = "strat")]
     pub arrangement_strategy: ArrangementStrategy,
@@ -38,6 +38,7 @@ pub struct Cli {
 
 #[derive(Clone, Debug, ValueEnum)]
 pub enum ArrangementStrategy {
+    Amalgamate,
     Raster,
     Spiral,
 }
