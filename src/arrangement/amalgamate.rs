@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use itertools::Itertools;
 use grid::Grid;
+use itertools::Itertools;
 
 use super::{color_similarity, ImageColor, OptionalGrid};
 
@@ -22,25 +22,30 @@ pub fn arrange<'a>(
         // Find best empty slot around perimeter of shape of placed tiles
         let best_neighbor = *empty_neighbors
             .iter()
-            .min_by(|a, b| neighbor_fitness(grid, **a, image_color).total_cmp(&neighbor_fitness(grid, **b, image_color)))
+            .min_by(|a, b| {
+                neighbor_fitness(grid, **a, image_color).total_cmp(&neighbor_fitness(
+                    grid,
+                    **b,
+                    image_color,
+                ))
+            })
             .unwrap();
         grid[best_neighbor] = Some(image_color);
 
         empty_neighbors.remove(&best_neighbor);
-        empty_neighbors.extend(
-            neighbors(grid, best_neighbor)
-                .filter(|i| grid[*i].is_none())
-        );
+        empty_neighbors.extend(neighbors(grid, best_neighbor).filter(|i| grid[*i].is_none()));
     }
 }
 
-fn neighbor_fitness<'a>(grid: &'a ImageColorGrid<'a>, index: (usize, usize), image_color: &ImageColor) -> f32 {
+fn neighbor_fitness<'a>(
+    grid: &'a ImageColorGrid<'a>,
+    index: (usize, usize),
+    image_color: &ImageColor,
+) -> f32 {
     neighbors(grid, index)
-        .map(|i| {
-            match grid[i] {
-                Some(tile) => color_similarity(image_color.color, tile.color),
-                _ => 0.0,
-            }
+        .map(|i| match grid[i] {
+            Some(tile) => color_similarity(image_color.color, tile.color),
+            _ => 0.0,
         })
         .sum()
 }

@@ -32,7 +32,11 @@ pub fn read_images(dir: &Path, k_means: u32, tile_size: (u32, u32)) -> Vec<Image
         .collect()
 }
 
-pub fn write_image<T: AsRef<Path>>(grid: &OptionalGrid<&ImageColor>, path: T, tile_size: (u32, u32)) {
+pub fn write_image<T: AsRef<Path>>(
+    grid: &OptionalGrid<&ImageColor>,
+    path: T,
+    tile_size: (u32, u32),
+) {
     let grid_width = <usize as TryInto<u32>>::try_into(grid.cols()).unwrap();
     let grid_height = <usize as TryInto<u32>>::try_into(grid.rows()).unwrap();
     let mut output = ImageBuffer::new(grid_width * tile_size.0, grid_height * tile_size.1);
